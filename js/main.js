@@ -1,37 +1,37 @@
-/*Функция getRandomInt, возвращающая случайное целое число из переданного диапазона включительно.
-Перестановка firstBound/secondBound значения не имеет. По условию "диапазон может быть только положительный,
-включая ноль", поэтому проверок нет. При firstBound==secondBound выводит их значение.*/
-function getRandomInt(firstBound, secondBound) {
-  if (firstBound < secondBound) {
-    return Math.floor(firstBound + Math.random() * (secondBound - firstBound + 1));
-  }
-  return Math.floor(secondBound + Math.random() * (firstBound - secondBound + 1));
+//Функция getRandomInt, возвращающая случайное целое число из переданного диапазона включительно.
+function getRandomInt(lowerBound, upperBound) {
+  return Math.floor(lowerBound + Math.random() * (upperBound - lowerBound + 1));
+}
+
+/*Функция getRandomFloat, возвращающая случайное дробное число из переданного диапазона.
+Включение верхней границы диапазона зависит от Math.random() и округления операции сложения.*/
+function getRandomFloat(lowerBound, upperBound) {
+  return Math.random() * (upperBound - lowerBound) + lowerBound;
 }
 
 /*Функция getRandomFloat, возвращающая случайное дробное число из переданного диапазона включительно.
-Выводит значения условно из [0, 1). Округление до границы зависит от Math.random() и мат. операций.
-При firstBound==secondBound выводит их значение.
-*/
-function getRandomFloat(firstBound, secondBound) {
-  const minValue = firstBound < secondBound ? firstBound : secondBound;
-  return Math.random() * Math.abs(secondBound - firstBound) + minValue;
+Значение параметра valueAfterComma определяет количество знаков после запятой.*/
+function getRandomFloatStrict(lowerBound, upperBound, valueAfterComma) {
+  return Number((getRandomFloat(lowerBound, upperBound) + 1 / Math.pow(10, valueAfterComma + 1)).toFixed(valueAfterComma));
 }
 
-/*Функция getRandomFloat2, возвращающая случайное дробное число из переданного диапазона включительно.
-Для вывода условно из [0, 1]  к результату добавляется дробная часть 1/Math.pow(10, valueAfterComma + 1),
-которая затем отсекается toFixed до valueAfterComma. Но есть артефакт, например при вводе [-1,0]
-на выходе бывают значения -0. При firstBound==secondBound выводит их значение.
+/*Функция getRandomFloat2, возвращающая случайное целое или дробное число из переданного диапазона включительно
+с возможностью ограничения количества знаков после запятой.
 */
-function getRandomFloat2(firstBound, secondBound, valueAfterComma) {
-  let result = 0;
-  const minValue = firstBound < secondBound ? firstBound : secondBound;
-  result = Math.random() * Math.abs(secondBound - firstBound) + minValue;
-  result += 1 / Math.pow(10, valueAfterComma + 1);
-  return Number(result.toFixed(valueAfterComma));
+function getRandomFromRange(lowerBound, upperBound, isFloating, valueAfterComma) {
+  const maxValue = Math.max(lowerBound, upperBound);
+  const minValue = Math.min(lowerBound, upperBound);
+
+  if (~Math.sign(lowerBound | upperBound | isFloating)) {
+    if (!isFloating) {
+      return getRandomInt(minValue, maxValue);
+    } else if (!Number.isInteger(valueAfterComma)) {
+      return getRandomFloat(minValue, maxValue);
+    } else {
+      return getRandomFloatStrict(minValue, maxValue, valueAfterComma);
+    }
+  }
+  return 'error: attribute negative';
 }
 
-getRandomInt(10, 100);
-getRandomFloat(2.5, 5.5);
-getRandomFloat2(10, 100, 5);
-
-//P.s. Можно еще проверку на Infinite сделать.
+getRandomFromRange(5, 15, true, 5);
