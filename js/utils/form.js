@@ -1,30 +1,25 @@
-const setFormStateDisabled = () => {
+const setFormState = (isItActivation = false) => {
   const formAd = document.querySelector('.ad-form');
-  if (!formAd.classList.contains('ad-form--disabled')) {
-    formAd.classList.add('ad-form--disabled');
-    [...formAd.children].forEach((child) => child.disabled = true);
+  const formFilter = document.querySelector('.map__filters');
+
+  if (isItActivation) {
+    if (formAd.classList.contains('ad-form--disabled')) {
+      formAd.classList.remove('ad-form--disabled');
+    }
+    if (formFilter.classList.contains('map__filters--disabled')) {
+      formFilter.classList.remove('map__filters--disabled');
+    }
+  } else {
+    if (!formAd.classList.contains('ad-form--disabled')) {
+      formAd.classList.add('ad-form--disabled');
+    }
+    if (!formFilter.classList.contains('map__filters--disabled')) {
+      formFilter.classList.add('map__filters--disabled');
+    }
   }
 
-  const formFilter = document.querySelector('.map__filters');
-  if (!formFilter.classList.contains('map__filters--disabled')) {
-    formFilter.classList.add('map__filters--disabled');
-    [...formFilter.children].forEach((child) => child.disabled = true);
-  }
+  [...formAd.children].forEach((child) => child.disabled = !isItActivation);
+  [...formFilter.children].forEach((child) => child.disabled = !isItActivation);
 };
 
-const setFromStateEnabled = () => {
-  const formAd = document.querySelector('.ad-form');
-  if (!formAd.classList.contains('ad-form--disabled')) {
-    formAd.classList.remove('ad-form--disabled');
-    [...formAd.children].forEach((child) => child.disabled = true);
-  }
-
-  const formFilter = document.querySelector('.map__filters');
-  if (!formFilter.classList.contains('map__filters--disabled')) {
-    formFilter.classList.remove('map__filters--disabled');
-    [...formFilter.children].forEach((child) => child.disabled = true);
-  }
-};
-
-export { setFormStateDisabled, setFromStateEnabled };
-
+export { setFormState };
