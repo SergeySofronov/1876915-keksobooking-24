@@ -5,7 +5,7 @@ const reworkClonedElement = function (element, elementProperty, propertyValue) {
     if (element.classList.contains('hidden')) {
       element.classList.remove('hidden');
     }
-    element[`${elementProperty}`] = propertyValue;
+    element[elementProperty] = propertyValue;
   } else {
     if (!element.classList.contains('hidden')) {
       element.classList.add('hidden');
@@ -17,7 +17,9 @@ const getCardsNodes = function () {
   const userAdsArray = getRandomAds();
   const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   const cardArray = [];
+
   userAdsArray.forEach((userAd) => {
+
     const cardClone = cardTemplate.cloneNode(true);
     const popupAvatarElement = cardClone.querySelector('.popup__avatar');
     const popupTitleElement = cardClone.querySelector('.popup__title');
@@ -39,13 +41,9 @@ const getCardsNodes = function () {
 
     const popupFeatureElement = cardClone.querySelectorAll('.popup__feature');
     popupFeatureElement.forEach((nodeItem) => {
-      let isRemoving = true;
-      userAd.offer.features.forEach((arrayItem) => {
-        if (nodeItem.classList.contains(`popup__feature--${arrayItem}`)) {
-          isRemoving = false;
-        }
-      });
-      if (isRemoving) {
+      const isFeatureInNode = userAd.offer.features.some(
+        (featureName) => nodeItem.classList.contains(`popup__feature--${featureName}`));
+      if (!isFeatureInNode) {
         nodeItem.remove();
       }
     });
@@ -54,13 +52,15 @@ const getCardsNodes = function () {
     const photoDefaultElement = cardClone.querySelector('.popup__photo');
     popupPhotoList.innerHTML = '';
     userAd.offer.photos.forEach((value, index) => {
-      photoDefaultElement.src = value;
-      photoDefaultElement.alt += ` №${index + 1}`;
       const photoNewElement = photoDefaultElement.cloneNode(false);
+      photoNewElement.src = value;
+      photoNewElement.alt += ` №${index + 1}`;
       popupPhotoList.append(photoNewElement);
     });
+
     cardArray.push(cardClone);
   });
+
   return cardArray;
 };
 

@@ -61,9 +61,9 @@ const prepareUserAd = () => {
       guests: getRandomFromRange(USER_AVATAR_MIN, USER_AVATAR_MAX),
       checkin: `${getRandomFromRange(TIME_MIN, TIME_MAX)}:00`,
       checkout: `${getRandomFromRange(TIME_MIN, TIME_MAX)}:00`,
-      features: getRandomPartFromArray(houseFeatures),
+      features: [...getRandomPartFromArray(houseFeatures)],
       description: `${offerDescription}`,
-      photos: getRandomPartFromArray(photosArray),
+      photos: [...getRandomPartFromArray(photosArray)],
     },
     location: {
       lat: locationLat,
