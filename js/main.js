@@ -1,8 +1,8 @@
 import { setFormState } from './utils/form.js';
 import { getCardsNodes } from './utils/setup.js';
 const FORM_DISABLE = true;
-//const FORM_ENABLE = false;
+const FORM_ENABLE = false;
 
-setFormState(FORM_DISABLE);
+setFormState(FORM_ENABLE);
 const userAds = getCardsNodes();
 document.querySelector('#map-canvas').append(userAds[0]);
