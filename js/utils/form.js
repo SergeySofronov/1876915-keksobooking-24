@@ -1,6 +1,7 @@
 const MIN_TITLE_LENGTH = '30';
 const MAX_TITLE_LENGTH = '100';
-
+const MAX_ROOM_NUMBER = 100;
+const ZERO_GUEST_VALUE = '0';
 
 const housePriceDictionary = {
   flat: '1000',
@@ -20,7 +21,7 @@ const formFilter = document.querySelector('.map__filters');
 
 //Селекторы формы объявления
 const adHouseTitle = formAd.querySelector('input[name="title"]');
-const adHouseAddress = formAd.querySelector('input[name="address"]');
+//const adHouseAddress = formAd.querySelector('input[name="address"]');
 const adHouseType = formAd.querySelector('select[name="type"]');
 const adHousePrice = formAd.querySelector('input[name="price"]');
 const adRoomNumber = formAd.querySelector('select[name="rooms"]');
@@ -31,7 +32,7 @@ const adTimeIn = formAd.querySelector('select[name="timein"]');
 const adTimeOut = formAd.querySelector('select[name="timeout"]');
 
 //Обработка валидации элемента --------------------
-const reworkValidity = (element, validity) => {
+const handleValidity = (element, validity) => {
   if (validity.message) {
     element.setCustomValidity(validity.message);
   } else {
@@ -44,7 +45,7 @@ const reworkValidity = (element, validity) => {
 //Событие изменения заголовка объявления --------------------
 const onHouseTitleInput = (evt) => {
   const element = evt.target;
-  const textLength = evt.target.value.length;
+  const textLength = element.value.length;
   if (!element.minLength) {
     element.minLength = MIN_TITLE_LENGTH;
   }
@@ -54,26 +55,15 @@ const onHouseTitleInput = (evt) => {
   if (textLength < element.minLength) {
     validityObject.message = `Минимум ${element.minLength} симв. Осталось ${element.minLength - textLength}`;
   }
-  reworkValidity(element, validityObject);
+  handleValidity(element, validityObject);
 };
 
 adHouseTitle.addEventListener('input', onHouseTitleInput);
 
-//Событие изменения адреса жилья --------------------
-const onHouseAddressInput = (evt) => {
-  const element = evt.target;
-  if (element.validity.patternMismatch) {
-    validityObject.message = 'Введите координаты в виде: 56.02458,45.12345';
-  }
-  reworkValidity(element, validityObject);
-};
-
-adHouseAddress.addEventListener('input', onHouseAddressInput);
-
 //Событие изменения цены жилья --------------------
 const onHousePriceInput = (evt) => {
   const element = evt.target;
-  const regexp = /^[0][\d]+/;
+  const regexp = /^[0]\d+/;
   const currentHouseType = adHouseType.options[adHouseType.selectedIndex].value;
   const currentMinPrice = parseInt(housePriceDictionary[currentHouseType], 10);
   if (element.value.match(regexp)) {
@@ -83,7 +73,7 @@ const onHousePriceInput = (evt) => {
   if (inputValue < currentMinPrice) {
     validityObject.message = `Цена ниже минимальной ${currentMinPrice}`;
   }
-  reworkValidity(element, validityObject);
+  handleValidity(element, validityObject);
 };
 
 adHousePrice.addEventListener('input', onHousePriceInput);
@@ -107,12 +97,12 @@ const onRoomNumberChange = () => {
   const currentRoomValue = parseInt(adRoomNumber.options[adRoomNumber.selectedIndex].value, 10);
   capacityList.forEach((capacityItem) => {
     capacityItem.hidden = true;
-    if (currentRoomValue === 100) {
-      if (capacityItem.value === '0') {
+    if (currentRoomValue === MAX_ROOM_NUMBER) {
+      if (capacityItem.value === ZERO_GUEST_VALUE) {
         capacityItem.hidden = false;
         adRoomCapacity.selectedIndex = capacityItem.index;
       }
-    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== '0') {
+    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== ZERO_GUEST_VALUE) {
       capacityItem.hidden = false;
       if (currentCapacity.hidden || currentCapacity.value === '0') {
         adRoomCapacity.selectedIndex = capacityItem.index;
@@ -148,7 +138,6 @@ const setFormState = (isDisable = true) => {
     }
   } else {
     onRoomNumberChange();
-
     if (formAd.classList.contains(formAdClassDisable)) {
       formAd.classList.remove(formAdClassDisable);
     }
