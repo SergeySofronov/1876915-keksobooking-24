@@ -55,7 +55,7 @@ const prepareUserAd = () => {
       type: `${offerType}`,
       typeRus: `${houseTypesDictionary[offerType]}`,
       title: `${offerTittle}`,
-      address: `${locationLat}, ${locationLng}`,
+      address: `Какое-то место с координатами: ${locationLat}, ${locationLng}`,
       price: getRandomFromRange(USER_AVATAR_MIN, USER_AVATAR_MAX) * PRICE_MULTIPLIER,
       rooms: getRandomFromRange(USER_AVATAR_MIN, USER_AVATAR_MAX),
       guests: getRandomFromRange(USER_AVATAR_MIN, USER_AVATAR_MAX),

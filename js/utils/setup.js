@@ -58,7 +58,7 @@ const getCardsNodes = function () {
       popupPhotoList.append(photoNewElement);
     });
 
-    cardArray.push(cardClone);
+    cardArray.push({userAdNode: cardClone, location: userAd.location});
   });
 
   return cardArray;

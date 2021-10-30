@@ -1,7 +1,8 @@
-const MIN_TITLE_LENGTH = '30';
-const MAX_TITLE_LENGTH = '100';
+const MAX_GPS_LENGTH = 5;
+const MAX_TITLE_LENGTH = 100;
 const MAX_ROOM_NUMBER = 100;
-const ZERO_GUEST_VALUE = '0';
+const MIN_TITLE_LENGTH = 30;
+const ZERO_GUEST_VALUE = 0;
 
 const housePriceDictionary = {
   flat: '1000',
@@ -21,13 +22,12 @@ const formFilter = document.querySelector('.map__filters');
 
 //Селекторы формы объявления
 const adHouseTitle = formAd.querySelector('input[name="title"]');
-//const adHouseAddress = formAd.querySelector('input[name="address"]');
+const adHouseAddress = formAd.querySelector('input[name="address"]');
 const adHouseType = formAd.querySelector('select[name="type"]');
 const adHousePrice = formAd.querySelector('input[name="price"]');
 const adRoomNumber = formAd.querySelector('select[name="rooms"]');
 const adRoomCapacity = formAd.querySelector('select[name="capacity"]');
 const adTimeField = formAd.querySelector('.ad-form__element--time');
-
 const adTimeIn = formAd.querySelector('select[name="timein"]');
 const adTimeOut = formAd.querySelector('select[name="timeout"]');
 
@@ -40,6 +40,12 @@ const handleValidity = (element, validity) => {
   }
   element.reportValidity();
   validity.message = '';
+};
+
+//Событие изменения адреса по перемещению маркера
+const onMarkerMoved = (evt) => {
+  const { lat, lng } = evt.target.getLatLng();
+  adHouseAddress.value = `${parseFloat(lat).toFixed(MAX_GPS_LENGTH)}, ${parseFloat(lng).toFixed(MAX_GPS_LENGTH)}`;
 };
 
 //Событие изменения заголовка объявления --------------------
@@ -98,11 +104,11 @@ const onRoomNumberChange = () => {
   capacityList.forEach((capacityItem) => {
     capacityItem.hidden = true;
     if (currentRoomValue === MAX_ROOM_NUMBER) {
-      if (capacityItem.value === ZERO_GUEST_VALUE) {
+      if (capacityItem.value === `${ZERO_GUEST_VALUE}`) {
         capacityItem.hidden = false;
         adRoomCapacity.selectedIndex = capacityItem.index;
       }
-    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== ZERO_GUEST_VALUE) {
+    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== `${ZERO_GUEST_VALUE}`) {
       capacityItem.hidden = false;
       if (currentCapacity.hidden || currentCapacity.value === '0') {
         adRoomCapacity.selectedIndex = capacityItem.index;
@@ -151,4 +157,4 @@ const setFormState = (isDisable = true) => {
 
 };
 
-export { setFormState };
+export { setFormState, onMarkerMoved };
