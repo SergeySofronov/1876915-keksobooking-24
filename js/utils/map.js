@@ -1,4 +1,5 @@
 import { onMarkerMoved } from './form.js';
+import { getCardsNodes } from './setup.js';
 
 const ICON_SPECIAL_SIZE = 52;
 const ICON_USUAL_SIZE = 40;
@@ -11,7 +12,7 @@ const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MARKER_INIT_LAT = 35.68897;
 const MARKER_INIT_LNG = 139.7535;
 
-//Пользовательские иконки маркера
+// Пользовательские иконки маркера
 const createMarkerIcon = (isSpecial = false) => {
   const url = isSpecial ? ICON_SPECIAL_URL : ICON_USUAL_URL;
   const size = isSpecial ? ICON_SPECIAL_SIZE : ICON_USUAL_SIZE;
@@ -23,7 +24,7 @@ const createMarkerIcon = (isSpecial = false) => {
   return icon;
 };
 
-// Функция создания карты
+// Создания карты
 const createMap = (cb) => {
   const map = L.map(MAP_CONTAINER_ID)
     .on('load', cb)
@@ -32,8 +33,7 @@ const createMap = (cb) => {
       lng: MARKER_INIT_LNG,
     }, MAP_INIT_ZOOM);
 
-  // Создание плитки карты
-  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION }).addTo(map);
+  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION }).addTo(map);   // Создание плитки карты
   return map;
 };
 
@@ -58,4 +58,13 @@ const createMarker = (latValue, lngValue, isSpecial = false) => {
   return marker;
 };
 
-export { createMap, createMarker };
+// Формирование массива маркеров и привязка их к карте
+const createMarkerHeap = (markerPopupData, mapObject) => {
+  const userAds = getCardsNodes(markerPopupData);
+  userAds.forEach((element) => {
+    const { lat, lng } = element.location;
+    createMarker(lat, lng).bindPopup(element.userAdNode).addTo(mapObject);
+  });
+};
+
+export { createMap, createMarkerHeap, createMarker };

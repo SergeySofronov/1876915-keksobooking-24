@@ -1,4 +1,4 @@
-import { getData, sentData } from './fetch.js';
+import { sendData } from './fetch.js';
 
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
@@ -135,7 +135,7 @@ adTimeField.addEventListener('change', onTimeChange);
 //Событие отправки формы
 const onFormSubmit = (evt) => {
   evt.preventDefault();
-  sentData(console.log, formAd);
+  sendData(console.log, console.log, formAd);
 };
 formAd.addEventListener('submit', onFormSubmit);
 

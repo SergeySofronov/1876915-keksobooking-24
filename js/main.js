@@ -1,23 +1,20 @@
 import { setFormState } from './utils/form.js';
-import { getCardsNodes } from './utils/setup.js';
-import { createMap, createMarker } from './utils/map.js';
-import { getData, sentData } from './utils/fetch.js';
+import { createMap, createMarkerHeap, createMarker } from './utils/map.js';
+import { getData, sendData } from './utils/fetch.js';
 
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
 const MARKER_SPECIAL = true;
 
+// Деактивация формы
 setFormState(FORM_DISABLE);
-const userAds = getCardsNodes();
-const userMarkers = [];
-const map = createMap(() => setFormState(FORM_ENABLE));
 
-userAds.forEach((element, index) => {
-  const { lat, lng } = element.location;
-  userMarkers[index] = createMarker(lat, lng).bindPopup(element.userAdNode).addTo(map);
-});
+// Создание карты
+const map = createMap(()=>setFormState(FORM_ENABLE));
 
+// Запрос данных с сервера и добавление маркеров на карту
+getData((markerPopupData) => createMarkerHeap(markerPopupData, map), console.error);
+
+// Добавление пользовательского маркера
 const mainMarker = createMarker(0, 0, MARKER_SPECIAL);
 mainMarker.addTo(map);
-
-getData();

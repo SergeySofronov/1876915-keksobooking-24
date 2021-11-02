@@ -1,7 +1,7 @@
 const ACADEMY_GET_URL = 'https://24.javascript.pages.academy/keksobooking/data';
 const ACADEMY_SEND_URL = 'https://24.javascript.pages.academy/keksobooking';
 
-const getData = () => fetch(
+const getData = (onSuccess, onFail) => fetch(
   ACADEMY_GET_URL,
   {
     method: 'GET',
@@ -14,14 +14,14 @@ const getData = () => fetch(
     }
     throw new Error(`${response.status} ${response.statusText}`);
   })
-  .then((data) => {
-    console.log(data);
+  .then((userAdsData) => {
+    onSuccess(userAdsData);
   })
   .catch((err) => {
-    console.error(err);
+    onFail(err);      //добавить обработку ошибки загрузки
   });
 
-const sentData = (logger, formData) => fetch(
+const sendData = (onSuccess, onFail, formData) => fetch(
   ACADEMY_SEND_URL,
   {
     method: 'POST',
@@ -31,15 +31,13 @@ const sentData = (logger, formData) => fetch(
 )
   .then((response) => {
     if (response.ok) {
-      return response.json();
+      onSuccess();  // Отправка произведена успешно
+    } else {
+      onFail();   // Ошибка при отправке
     }
-    throw new Error(`${response.status} ${response.statusText}`);
   })
-  .then((data) => {
-    logger(data);
-  })
-  .catch((err) => {
-    logger(err + ' Жопа!');
+  .catch(() => {
+    onFail();   // Ошибка при отправке (противоповторность?)
   });
 
-export { getData, sentData };
+export { getData, sendData };

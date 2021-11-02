@@ -1,6 +1,14 @@
 import { getRandomAds } from './data.js';
 
-const handleClonedElement = function (element, elementProperty, propertyValue) {
+const houseTypesDictionary = {
+  flat: 'Квартира',
+  palace: 'Дворец',
+  house: 'Дом',
+  bungalow: 'Бунгало',
+  hotel: 'Отель',
+};
+
+const handleClonedElement = (element, elementProperty, propertyValue) => {
   if (propertyValue) {
     if (element.classList.contains('hidden')) {
       element.classList.remove('hidden');
@@ -13,8 +21,7 @@ const handleClonedElement = function (element, elementProperty, propertyValue) {
   }
 };
 
-const getCardsNodes = function () {
-  const userAdsArray = getRandomAds();
+const getCardsNodes = (userAdsArray) => {
   const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   const cardArray = [];
 
@@ -34,14 +41,14 @@ const getCardsNodes = function () {
     handleClonedElement(popupTitleElement, 'textContent', userAd.offer.title);
     handleClonedElement(popupAddressElement, 'textContent', userAd.offer.address);
     handleClonedElement(popupPriceElement, 'textContent', `${userAd.offer.price}₽/ночь`);
-    handleClonedElement(popupTypeElement, 'textContent', userAd.offer.typeRus);
+    handleClonedElement(popupTypeElement, 'textContent', houseTypesDictionary[userAd.offer.type]);
     handleClonedElement(popupCapacityElement, 'textContent', `${userAd.offer.rooms} комнаты для ${userAd.offer.guests} гостей`);
     handleClonedElement(popupTimeElement, 'textContent', `Заезд после ${userAd.offer.checkin}, выезд до ${userAd.offer.checkout}`);
     handleClonedElement(popupDescriptionElement, 'textContent', userAd.offer.description);
 
     const popupFeatureElement = cardClone.querySelectorAll('.popup__feature');
     popupFeatureElement.forEach((nodeItem) => {
-      const isFeatureInNode = userAd.offer.features.some(
+      const isFeatureInNode = (userAd.offer.features || []).some(
         (featureName) => nodeItem.classList.contains(`popup__feature--${featureName}`));
       if (!isFeatureInNode) {
         nodeItem.remove();
@@ -51,14 +58,16 @@ const getCardsNodes = function () {
     const popupPhotoList = cardClone.querySelector('.popup__photos');
     const photoDefaultElement = cardClone.querySelector('.popup__photo');
     popupPhotoList.innerHTML = '';
-    userAd.offer.photos.forEach((value, index) => {
-      const photoNewElement = photoDefaultElement.cloneNode(false);
-      photoNewElement.src = value;
-      photoNewElement.alt += ` №${index + 1}`;
-      popupPhotoList.append(photoNewElement);
-    });
+    if (userAd.offer.photos) {
+      userAd.offer.photos.forEach((value, index) => {
+        const photoNewElement = photoDefaultElement.cloneNode(false);
+        photoNewElement.src = value;
+        photoNewElement.alt += ` №${index + 1}`;
+        popupPhotoList.append(photoNewElement);
+      });
+    }
 
-    cardArray.push({userAdNode: cardClone, location: userAd.location});
+    cardArray.push({ userAdNode: cardClone, location: userAd.location });
   });
 
   return cardArray;
