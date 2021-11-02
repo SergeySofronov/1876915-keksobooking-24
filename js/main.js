@@ -1,6 +1,7 @@
 import { setFormState } from './utils/form.js';
 import { getCardsNodes } from './utils/setup.js';
 import { createMap, createMarker } from './utils/map.js';
+import { getData, sentData } from './utils/fetch.js';
 
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
@@ -19,3 +20,4 @@ userAds.forEach((element, index) => {
 const mainMarker = createMarker(0, 0, MARKER_SPECIAL);
 mainMarker.addTo(map);
 
+getData();

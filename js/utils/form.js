@@ -1,3 +1,5 @@
+import { getData, sentData } from './fetch.js';
+
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
 const MAX_ROOM_NUMBER = 100;
@@ -104,13 +106,13 @@ const onRoomNumberChange = () => {
   capacityList.forEach((capacityItem) => {
     capacityItem.hidden = true;
     if (currentRoomValue === MAX_ROOM_NUMBER) {
-      if (capacityItem.value === `${ZERO_GUEST_VALUE}`) {
+      if (capacityItem.value === String(ZERO_GUEST_VALUE)) {
         capacityItem.hidden = false;
         adRoomCapacity.selectedIndex = capacityItem.index;
       }
-    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== `${ZERO_GUEST_VALUE}`) {
+    } else if (+capacityItem.value <= currentRoomValue && capacityItem.value !== String(ZERO_GUEST_VALUE)) {
       capacityItem.hidden = false;
-      if (currentCapacity.hidden || currentCapacity.value === '0') {
+      if (currentCapacity.hidden || currentCapacity.value === String(ZERO_GUEST_VALUE)) {
         adRoomCapacity.selectedIndex = capacityItem.index;
       }
     }
@@ -129,6 +131,13 @@ const onTimeChange = (evt) => {
 };
 
 adTimeField.addEventListener('change', onTimeChange);
+
+//Событие отправки формы
+const onFormSubmit = (evt) => {
+  evt.preventDefault();
+  sentData(console.log, formAd);
+};
+formAd.addEventListener('submit', onFormSubmit);
 
 //Функция активации/деактивации форм --------------------
 const setFormState = (isDisable = true) => {
