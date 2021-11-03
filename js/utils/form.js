@@ -1,4 +1,6 @@
 import { sendData } from './fetch.js';
+import { isEscapeKey } from './setup.js';
+import { resetMap } from './map.js';
 
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
@@ -32,6 +34,16 @@ const adRoomCapacity = formAd.querySelector('select[name="capacity"]');
 const adTimeField = formAd.querySelector('.ad-form__element--time');
 const adTimeIn = formAd.querySelector('select[name="timein"]');
 const adTimeOut = formAd.querySelector('select[name="timeout"]');
+const adReset = formAd.querySelector('.ad-form__reset');
+
+//Селекторы шаблонов сообщений
+const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
+const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
+const successMessage = document.body.appendChild(successMessageTemplate.cloneNode(true));
+const errorMessage = document.body.appendChild(errorMessageTemplate.cloneNode(true));
+const errorMessageButton = errorMessage.querySelector('.error__button');
+
+//-------------------------------------------------------------------------------------------
 
 //Обработка валидации элемента --------------------
 const handleValidity = (element, validity) => {
@@ -132,10 +144,53 @@ const onTimeChange = (evt) => {
 
 adTimeField.addEventListener('change', onTimeChange);
 
+//Сброс форм и карты к значениям по умолчанию
+const onFormReset = () => {
+  formAd.reset();
+  formFilter.reset();
+  resetMap();
+};
+adReset.addEventListener('click', onFormReset);
+
+//Обработка сообщения об успешном создании объявления, сброс формы adForm
+const onSuccessMessageClose = (evt) => {
+  if ((evt.type !== 'keydown') || (evt.type === 'keydown' && isEscapeKey(evt))) {
+    successMessage.hidden = true;
+    successMessage.removeEventListener('click', onSuccessMessageClose);
+    successMessage.removeEventListener('keydown', onSuccessMessageClose);
+    onFormReset();
+  }
+};
+
+const showSuccessMessage = () => {
+  successMessage.hidden = false;
+  successMessage.addEventListener('click', onSuccessMessageClose);
+  successMessage.addEventListener('keydown', onSuccessMessageClose);
+  successMessage.tabIndex = '-1';
+  successMessage.focus();
+  setTimeout(() => {
+    successMessage.dispatchEvent(new Event('click'));
+  },3000);
+};
+
+//Обработка сообщения об ошибке создания объявления
+const onErrorMessageClose = () => {
+  errorMessage.hidden = true;
+  errorMessageButton.removeEventListener('click', onErrorMessageClose);
+};
+
+const showErrorMessage = () => {
+  errorMessage.hidden = false;
+  errorMessageButton.addEventListener('click', onErrorMessageClose);
+};
+
 //Событие отправки формы
 const onFormSubmit = (evt) => {
   evt.preventDefault();
-  sendData(console.log, console.log, formAd);
+  sendData(
+    () => showSuccessMessage(),
+    () => showErrorMessage(),
+    formAd);
 };
 formAd.addEventListener('submit', onFormSubmit);
 

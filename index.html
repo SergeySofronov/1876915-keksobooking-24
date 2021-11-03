@@ -22,6 +22,8 @@
 
     <!-- Карта объявлений -->
     <section class="map">
+      <!-- Блок сигнализации ошибки загрузки карты -->
+      <div class="map__error map__error--hidden">Ошибка при загрузке карты</div>
 
       <!-- Блок для вставки карты -->
       <div class="map__canvas" id="map-canvas"></div>
@@ -122,7 +124,7 @@
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
           <input id="price" name="price" type="number" placeholder="от 1000" min="0" , max="1000000" required
-          value='1500'<!--XXX-->>
+          value='1500'><!--XXX-->
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--time">
           <label class="ad-form__label" for="timein">Время заезда и выезда</label>
@@ -247,14 +249,14 @@
 
   <!-- Сообщение об успешном создании объявления -->
   <template id="success">
-    <div class="success">
+    <div class="success" hidden>
       <p class="success__message">Ваше объявление<br>успешно размещено!</p>
     </div>
   </template>
 
   <!-- Сообщение об ошибке создания объявления -->
   <template id="error">
-    <div class="error">
+    <div class="error" hidden>
       <p class="error__message">Ошибка размещения объявления</p>
       <button type="button" class="error__button">Попробовать снова</button>
     </div>

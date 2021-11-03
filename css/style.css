@@ -89,6 +89,24 @@ fieldset {
   background-color: #dddddd;
 }
 
+.map__error{
+  position: absolute;
+  z-index: 1000;
+  display:block;
+  width: 100%;
+  margin: auto;
+  color:white;
+  text-align: center;
+  background-color: red;
+
+  opacity: 1;
+  transition: 1s opacity;
+}
+.map__error--hidden{
+  opacity: 0;
+}
+
+
 
 /**
  * Фильтры объявления

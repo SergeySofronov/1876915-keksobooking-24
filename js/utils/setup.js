@@ -1,4 +1,3 @@
-import { getRandomAds } from './data.js';
 
 const houseTypesDictionary = {
   flat: 'Квартира',
@@ -7,6 +6,8 @@ const houseTypesDictionary = {
   bungalow: 'Бунгало',
   hotel: 'Отель',
 };
+
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
 const handleClonedElement = (element, elementProperty, propertyValue) => {
   if (propertyValue) {
@@ -21,7 +22,7 @@ const handleClonedElement = (element, elementProperty, propertyValue) => {
   }
 };
 
-const getCardsNodes = (userAdsArray) => {
+const getPopupNodes = (userAdsArray) => {
   const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   const cardArray = [];
 
@@ -73,4 +74,4 @@ const getCardsNodes = (userAdsArray) => {
   return cardArray;
 };
 
-export { getCardsNodes };
+export { getPopupNodes , isEscapeKey };

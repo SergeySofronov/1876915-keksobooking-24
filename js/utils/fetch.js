@@ -18,7 +18,7 @@ const getData = (onSuccess, onFail) => fetch(
     onSuccess(userAdsData);
   })
   .catch((err) => {
-    onFail(err);      //добавить обработку ошибки загрузки
+    onFail(err);
   });
 
 const sendData = (onSuccess, onFail, formData) => fetch(
@@ -37,7 +37,7 @@ const sendData = (onSuccess, onFail, formData) => fetch(
     }
   })
   .catch(() => {
-    onFail();   // Ошибка при отправке (противоповторность?)
+    onFail();   // Ошибка при отправке
   });
 
 export { getData, sendData };
