@@ -8,15 +8,19 @@ const ICON_SPECIAL_URL = 'img/main-pin.svg';
 const ICON_USUAL_URL = 'img/pin.svg';
 const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const MAP_CONTAINER_ID = 'map-canvas';
+const MAP_ERROR_MESSAGE = 'Ошибка при загрузке карты';
 const MAP_INIT_ZOOM = 12;
 const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const MAP_PAN_SPEED = 3;
 const MARKER_INIT_LAT = 35.68897;
 const MARKER_INIT_LNG = 139.7535;
 const MARKER_SPECIAL = true;
+const MARKER_MAX_NUMBER = 10;
+const DATA_ERROR_MESSAGE = 'Ошибка при загрузке объявлений';
 
 let map;                      //Ссылка на карту
 let mainMarker;               //Ссылка на пользовательский маркер
-const markerHeap = [];          //Пустой массив для хранения маркеров
+let markerGroup;              //Ссылка на слой группы маркеров
 const defaultLocation = {     //Объект с координатами по умолчанию
   lat: MARKER_INIT_LAT,
   lng: MARKER_INIT_LNG,
@@ -50,21 +54,22 @@ const createMarker = (latValue, lngValue, isSpecial = false) => {
       icon: createMarkerIcon(isSpecial),
       riseOnHover: true,
       autoPan: true,
-      autoPanSpeed: 3,
+      autoPanSpeed: MAP_PAN_SPEED,
     },
   );
   if (isSpecial) {
-    marker.on('moveend', onMarkerMoved);
+    marker.on('moveend', onMarkerMoved);  // Привязка обработчика события перемещения пользовательского маркера
   }
   return marker;
 };
 
 // Формирование массива маркеров и привязка их к карте
-const createMarkerHeap = (markerPopupData) => {
-  const userAds = getPopupNodes(markerPopupData);
-  userAds.forEach((element, index) => {
+const createMarkerHeap = (markerPopupData, filters) => {
+  markerGroup.clearLayers();
+  getPopupNodes(markerPopupData, filters).slice(0, MARKER_MAX_NUMBER).forEach((element) => {
     const { lat, lng } = element.location;
-    markerHeap[index] = createMarker(lat, lng).bindPopup(element.userAdNode).addTo(map);
+    createMarker(lat, lng).bindPopup(element.userAdNode).addTo(markerGroup);
+
   });
 };
 
@@ -75,25 +80,39 @@ const resetMap = () => {
   mainMarker.setLatLng(defaultLocation);
 };
 
-const showMapError = () => {
+//Уведомление об ошибке при загрузке карты
+const onGetError = (errorMessage) => {
   errorLine.classList.remove('map__error--hidden');
+  errorLine.textContent = errorMessage;
 };
 
-// Создание карты и запрос данных от сервера после загрузки карты
+//Уведомление об ошибке при загрузке карты
+
+//Запрос данных для маркеров от сервера
+const getMarkerData = (filters, cb) => {
+  getData((markerPopupData) => {
+    createMarkerHeap(markerPopupData, filters);
+  }, () => onGetError(DATA_ERROR_MESSAGE), cb);
+};
+
+
+// Создание карты
 const createMap = (cb) => {
   map = L.map(MAP_CONTAINER_ID)
     .on('load', () => {
-      cb();
-      getData((markerPopupData) => createMarkerHeap(markerPopupData), showMapError);
+      getMarkerData(null, cb);
     })
     .setView({
       lat: MARKER_INIT_LAT,
       lng: MARKER_INIT_LNG,
     }, MAP_INIT_ZOOM);
 
-  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION }).addTo(map);   // Создание плитки карты
+  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION })
+    .on('tileerror', () => onGetError(MAP_ERROR_MESSAGE))
+    .addTo(map);   // Создание плитки карты
+  markerGroup = L.layerGroup().addTo(map);
   mainMarker = createMarker(0, 0, MARKER_SPECIAL).addTo(map);
   return map;
 };
 
-export { createMap, createMarkerHeap, createMarker, resetMap };
+export { createMap, createMarker, resetMap, getMarkerData };
