@@ -1,8 +1,12 @@
-const ACADEMY_GET_URL = 'https://24.javascript.pages.academy/keksobooking/data';
-const ACADEMY_SEND_URL = 'https://24.javascript.pages.academy/keksobooking';
+const ACADEMY_BASE_URL = 'https://24.javascript.pages.academy/keksobooking';
 
-const getData = (onSuccess, onFail) => fetch(
-  ACADEMY_GET_URL,
+const EndPoints = {
+  SEND_ADS:`${ACADEMY_BASE_URL}`,
+  GET_ADS:`${ACADEMY_BASE_URL}/data`,
+};
+
+const getData = (onSuccess, onFail, onFinally) => fetch(
+  EndPoints.GET_ADS,
   {
     method: 'GET',
     credentials: 'same-origin',
@@ -19,10 +23,11 @@ const getData = (onSuccess, onFail) => fetch(
   })
   .catch((err) => {
     onFail(err);
-  });
+  })
+  .finally(()=>onFinally());
 
 const sendData = (onSuccess, onFail, formData) => fetch(
-  ACADEMY_SEND_URL,
+  EndPoints.SEND_ADS,
   {
     method: 'POST',
     credentials: 'same-origin',

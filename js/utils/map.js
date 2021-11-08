@@ -8,12 +8,15 @@ const ICON_SPECIAL_URL = 'img/main-pin.svg';
 const ICON_USUAL_URL = 'img/pin.svg';
 const MAP_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const MAP_CONTAINER_ID = 'map-canvas';
+const MAP_ERROR_MESSAGE = 'Ошибка при загрузке карты';
 const MAP_INIT_ZOOM = 12;
 const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const MAP_PAN_SPEED = 3;
 const MARKER_INIT_LAT = 35.68897;
 const MARKER_INIT_LNG = 139.7535;
 const MARKER_SPECIAL = true;
 const MARKER_MAX_NUMBER = 10;
+const DATA_ERROR_MESSAGE = 'Ошибка при загрузке объявлений';
 
 let map;                      //Ссылка на карту
 let mainMarker;               //Ссылка на пользовательский маркер
@@ -51,8 +54,7 @@ const createMarker = (latValue, lngValue, isSpecial = false) => {
       icon: createMarkerIcon(isSpecial),
       riseOnHover: true,
       autoPan: true,
-      autoPanSpeed: 3,
-      riseOffset: 250,
+      autoPanSpeed: MAP_PAN_SPEED,
     },
   );
   if (isSpecial) {
@@ -79,17 +81,18 @@ const resetMap = () => {
 };
 
 //Уведомление об ошибке при загрузке карты
-const showMapError = () => {
+const onGetError = (errorMessage) => {
   errorLine.classList.remove('map__error--hidden');
+  errorLine.textContent = errorMessage;
 };
 
+//Уведомление об ошибке при загрузке карты
 
 //Запрос данных для маркеров от сервера
 const getMarkerData = (filters, cb) => {
   getData((markerPopupData) => {
     createMarkerHeap(markerPopupData, filters);
-    cb();
-  }, showMapError);
+  }, () => onGetError(DATA_ERROR_MESSAGE), cb);
 };
 
 
@@ -97,14 +100,16 @@ const getMarkerData = (filters, cb) => {
 const createMap = (cb) => {
   map = L.map(MAP_CONTAINER_ID)
     .on('load', () => {
-      getMarkerData('', cb);
+      getMarkerData(null, cb);
     })
     .setView({
       lat: MARKER_INIT_LAT,
       lng: MARKER_INIT_LNG,
     }, MAP_INIT_ZOOM);
 
-  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION }).addTo(map);   // Создание плитки карты
+  L.tileLayer(MAP_TILE_URL, { attribution: MAP_ATTRIBUTION })
+    .on('tileerror', () => onGetError(MAP_ERROR_MESSAGE))
+    .addTo(map);   // Создание плитки карты
   markerGroup = L.layerGroup().addTo(map);
   mainMarker = createMarker(0, 0, MARKER_SPECIAL).addTo(map);
   return map;
