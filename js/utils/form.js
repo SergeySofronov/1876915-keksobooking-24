@@ -1,6 +1,6 @@
 import { sendData } from './fetch.js';
-import { isEscapeKey } from './setup.js';
 import { resetMap, getMarkerData } from './map.js';
+import { debounce } from './debounce.js';
 
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
@@ -9,13 +9,19 @@ const MIN_TITLE_LENGTH = 30;
 const ZERO_GUEST_VALUE = 0;
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
+const DEBOUNCE_TIME = 500;
+const MESSAGE_CLOSE_TIME = 3000;
+
+const KeyEnum = {
+  ESC: 'Escape',
+};
 
 const housePriceDictionary = {
   flat: '1000',
   palace: '10000',
   house: '5000',
   bungalow: '0',
-  hotel: '3000',
+  hotel: '2000',
 };
 
 const validityObject = {
@@ -100,10 +106,14 @@ const setFilters = () => {
 };
 
 // Обработчик события изменения фильтров объявления------
-const onFilterChange = () => {
+const debounceFilterChange = debounce(() => {
   setFormState(FORM_DISABLE, formMapFilters);
   setFilters();
   getMarkerData(filters, () => setFormState(FORM_ENABLE, formMapFilters));
+}, DEBOUNCE_TIME);
+
+const onFilterChange = () => {
+  debounceFilterChange();
 };
 
 formMapFilters.addEventListener('change', onFilterChange);
@@ -225,7 +235,7 @@ adReset.addEventListener('click', onFormReset);
 
 //Обработка сообщения об успешном создании объявления, сброс формы adForm------
 const onSuccessMessageClose = (evt) => {
-  if ((evt.type !== 'keydown') || (evt.type === 'keydown' && isEscapeKey(evt))) {
+  if ((evt.type !== 'keydown') || (evt.type === 'keydown' && evt.key === KeyEnum.ESC)) {
     successMessage.hidden = true;
     successMessage.removeEventListener('click', onSuccessMessageClose);
     successMessage.removeEventListener('keydown', onSuccessMessageClose);
@@ -241,7 +251,7 @@ const showSuccessMessage = () => {
   successMessage.focus();
   setTimeout(() => {
     successMessage.dispatchEvent(new Event('click'));
-  }, 3000);
+  }, MESSAGE_CLOSE_TIME);
 };
 
 //Обработка сообщения об ошибке создания объявления-----------------------

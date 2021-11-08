@@ -98,12 +98,10 @@ fieldset {
   color:white;
   text-align: center;
   background-color: red;
-
-  opacity: 1;
-  transition: 1s opacity;
 }
+
 .map__error--hidden{
-  opacity: 0;
+  display: none;
 }
 
 

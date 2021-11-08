@@ -15,8 +15,6 @@ const housePriceDictionary = {
   any: [0, Infinity],
 };
 
-const isEscapeKey = (evt) => evt.key === 'Escape';
-
 const handleClonedElement = (element, elementProperty, propertyValue) => {
   if (propertyValue) {
     if (element.classList.contains('hidden')) {
@@ -118,4 +116,4 @@ const getPopupNodes = (userAdsArray, filters) => {
   return cardArray;
 };
 
-export { getPopupNodes, isEscapeKey };
+export { getPopupNodes};
