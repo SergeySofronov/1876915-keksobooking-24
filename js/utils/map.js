@@ -28,7 +28,6 @@ const defaultLocation = {     //Объект с координатами по у
 
 //Селекторы
 const errorLine = document.querySelector('.map__error');
-//---------------------------------------------------------------------------
 
 // Пользовательские иконки маркера
 const createMarkerIcon = (isSpecial = false) => {
@@ -64,9 +63,9 @@ const createMarker = (latValue, lngValue, isSpecial = false) => {
 };
 
 // Формирование массива маркеров и привязка их к карте
-const createMarkerHeap = (markerPopupData, filters) => {
+const createMarkerHeap = (markerPopupData) => {
   markerGroup.clearLayers();
-  getPopupNodes(markerPopupData, filters).slice(0, MARKER_MAX_NUMBER).forEach((element) => {
+  getPopupNodes(markerPopupData).slice(0, MARKER_MAX_NUMBER).forEach((element) => {
     const { lat, lng } = element.location;
     createMarker(lat, lng).bindPopup(element.userAdNode).addTo(markerGroup);
 
@@ -80,18 +79,16 @@ const resetMap = () => {
   mainMarker.setLatLng(defaultLocation);
 };
 
-//Уведомление об ошибке при загрузке карты
+//Уведомление об ошибке при загрузке данных по сети
 const onGetError = (errorMessage) => {
   errorLine.classList.remove('map__error--hidden');
   errorLine.textContent = errorMessage;
 };
 
-//Уведомление об ошибке при загрузке карты
-
 //Запрос данных для маркеров от сервера
-const getMarkerData = (filters, cb) => {
+const getMarkerData = (cb) => {
   getData((markerPopupData) => {
-    createMarkerHeap(markerPopupData, filters);
+    createMarkerHeap(markerPopupData);
   }, () => onGetError(DATA_ERROR_MESSAGE), cb);
 };
 
@@ -100,7 +97,7 @@ const getMarkerData = (filters, cb) => {
 const createMap = (cb) => {
   map = L.map(MAP_CONTAINER_ID)
     .on('load', () => {
-      getMarkerData(null, cb);
+      getMarkerData(cb);
     })
     .setView({
       lat: MARKER_INIT_LAT,

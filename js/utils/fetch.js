@@ -5,6 +5,7 @@ const EndPoints = {
   GET_ADS:`${ACADEMY_BASE_URL}/data`,
 };
 
+//Загрузка данных от сервера
 const getData = (onSuccess, onFail, onFinally) => fetch(
   EndPoints.GET_ADS,
   {
@@ -26,6 +27,7 @@ const getData = (onSuccess, onFail, onFinally) => fetch(
   })
   .finally(()=>onFinally());
 
+//Отправка данных на сервер
 const sendData = (onSuccess, onFail, formData) => fetch(
   EndPoints.SEND_ADS,
   {
