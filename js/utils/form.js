@@ -1,16 +1,22 @@
 import { sendData } from './fetch.js';
 import { resetMap, getMarkerData } from './map.js';
 import { debounce } from './debounce.js';
+import { setFilters } from './filter.js';
 
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
 const MAX_ROOM_NUMBER = 100;
 const MIN_TITLE_LENGTH = 30;
 const ZERO_GUEST_VALUE = 0;
+const FORM_ADS_DISABLE_CLASS = 'ad-form--disabled';
+const FORM_FILTER_DISABLE_CLASS = 'map__filters--disabled';
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
 const DEBOUNCE_TIME = 500;
+const MAX_PICTURES_NUMBER = 3;
 const MESSAGE_CLOSE_TIME = 3000;
+const FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png'];
+const DEFAULT_AVATAR_IMAGE = 'img/muffin-grey.svg';
 
 const KeyEnum = {
   ESC: 'Escape',
@@ -26,14 +32,6 @@ const housePriceDictionary = {
 
 const validityObject = {
   message: '',
-};
-
-const filters = {
-  type: 'flat',
-  price: 'any',
-  rooms: 'any',
-  guests: 'any',
-  features: [],
 };
 
 //Селекторы форм
@@ -52,13 +50,6 @@ const adTimeIn = formAd.querySelector('#timein');
 const adTimeOut = formAd.querySelector('#timeout');
 const adReset = formAd.querySelector('.ad-form__reset');
 
-//Селекторы формы фильтрации объявлений
-const filterHouseType = formMapFilters.querySelector('#housing-type');
-const filterHousePrice = formMapFilters.querySelector('#housing-price');
-const filterRoomNumber = formMapFilters.querySelector('#housing-rooms');
-const filterGuestNumber = formMapFilters.querySelector('#housing-guests');
-const filterHouseFeatures = formMapFilters.querySelector('#housing-features');
-
 //Селекторы шаблонов сообщений
 const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
@@ -66,55 +57,44 @@ const successMessage = document.body.appendChild(successMessageTemplate.cloneNod
 const errorMessage = document.body.appendChild(errorMessageTemplate.cloneNode(true));
 const errorMessageButton = errorMessage.querySelector('.error__button');
 
+//Селекторы тэгов загрузки файлов и превью
+const avatarPhotoPreview = formAd.querySelector('.ad-form-header__preview img');
+const avatarPhotoPicker = formAd.querySelector('#avatar');
+const housePhotoPreview = formAd.querySelector('.ad-form__photo');
+const housePhotoPicker = formAd.querySelector('#images');
+
 //-------------------------------------------------------------------------------------------
 //Функция активации/деактивации форм
-const setFormState = (isDisable = true, formSelector) => {
-  const formList = [[formAd, 'ad-form--disabled'], [formMapFilters, 'map__filters--disabled']];
-  let selector = formSelector;
-  let index = formList.length - 1;
-
-  do {
-    if (!selector) {
-      selector = formList[index][0];
-    } else {
-      index = 0;
+const setFormState = (isDisable = true, element, elementClass) => {
+  if (isDisable) {
+    if (!element.classList.contains(elementClass)) {
+      element.classList.add(elementClass);
     }
-    if (isDisable) {
-      if (!selector.classList.contains(formList[index][1])) {
-        selector.classList.add(formList[index][1]);
-      }
-    } else {
-      selector.classList.remove(formList[index][1]);
-    }
-    [...selector.children].forEach((child) => child.disabled = isDisable);
-    selector = '';
-  } while (index--);
+  } else {
+    element.classList.remove(elementClass);
+  }
+  [...element.children].forEach((child) => child.disabled = isDisable);
 };
 
-//Обновление параметров фильтров объявлений-------------
-const setFilters = () => {
-  filters.type = filterHouseType.options[filterHouseType.selectedIndex].value;
-  filters.price = filterHousePrice.options[filterHousePrice.selectedIndex].value;
-  filters.rooms = filterRoomNumber.options[filterRoomNumber.selectedIndex].value;
-  filters.guests = filterGuestNumber.options[filterGuestNumber.selectedIndex].value;
-  filters.features = [];
-  filterHouseFeatures.querySelectorAll('.map__checkbox').forEach((child) => {
-    if (child.checked) {
-      filters.features.push(child.value);
-    }
-  });
+const setFormAdState = (isDisable) => {
+  setFormState(isDisable, formAd, FORM_ADS_DISABLE_CLASS);
+};
+
+const setFormFilterState = (isDisable)=>{
+  setFormState(isDisable, formMapFilters, FORM_FILTER_DISABLE_CLASS);
+};
+
+const setFormStateAll = (isDisable)=>{
+  setFormAdState(isDisable);
+  setFormFilterState(isDisable);
 };
 
 // Обработчик события изменения фильтров объявления------
-const debounceFilterChange = debounce(() => {
-  setFormState(FORM_DISABLE, formMapFilters);
+const onFilterChange = debounce(() => {
+  setFormFilterState(FORM_DISABLE);
   setFilters();
-  getMarkerData(filters, () => setFormState(FORM_ENABLE, formMapFilters));
+  getMarkerData(() => setFormFilterState(FORM_ENABLE));
 }, DEBOUNCE_TIME);
-
-const onFilterChange = () => {
-  debounceFilterChange();
-};
 
 formMapFilters.addEventListener('change', onFilterChange);
 
@@ -221,13 +201,15 @@ adTimeField.addEventListener('change', onTimeChange);
 const onFormReset = () => {
   formAd.reset();
   formMapFilters.reset();
+  onFilterChange();
+  resetMap();
   window.scroll({
     top: 0,
     left: 0,
     behavior: 'smooth',
   });
-  resetMap();
-  onFilterChange();
+  avatarPhotoPreview.src = DEFAULT_AVATAR_IMAGE;
+  housePhotoPreview.innerHTML = '';
   adHouseType.dispatchEvent(new Event('change'));
   adHouseTitle.dispatchEvent(new Event('input'));
 };
@@ -275,4 +257,43 @@ const onFormSubmit = (evt) => {
 };
 formAd.addEventListener('submit', onFormSubmit);
 
-export { setFormState, onMarkerMoved, onRoomNumberChange };
+//Событие выбора аватарки пользователя
+const onAvatarPhotoChange = () => {
+  const file = avatarPhotoPicker.files[0];
+  const filetype = file.type;
+  const isValidType = FILE_TYPES.some((value) => value === filetype);
+  if (isValidType) {
+    avatarPhotoPreview.src = URL.createObjectURL(file);
+    avatarPhotoPreview.style.marginLeft = '-15px';
+    avatarPhotoPreview.style.width = '70px';
+    avatarPhotoPreview.style.height = '70px';
+    avatarPhotoPreview.style.borderRadius = '5px';
+  }
+};
+avatarPhotoPicker.addEventListener('change', onAvatarPhotoChange);
+
+//Событие выбора фото жилья
+const onHousePhotoChange = () => {
+  housePhotoPreview.innerHTML = '';
+  const files = [...housePhotoPicker.files];
+  if (files.length > MAX_PICTURES_NUMBER) {
+    files.length = MAX_PICTURES_NUMBER;
+  }
+  files.forEach((item) => {
+    const filetype = item.type;
+    const isValidType = FILE_TYPES.some((value) => value === filetype);
+    if (isValidType) {
+      const clone = avatarPhotoPreview.cloneNode(false);
+      clone.style.marginLeft = '0px';
+      clone.style.width = '70px';
+      clone.style.height = '70px';
+      clone.style.borderRadius = '5px';
+      clone.style.marginRight = '10px';
+      clone.src = URL.createObjectURL(item);
+      housePhotoPreview.appendChild(clone);
+    }
+  });
+};
+housePhotoPicker.addEventListener('change', onHousePhotoChange);
+
+export { setFormStateAll, onMarkerMoved, onRoomNumberChange };
