@@ -1,12 +1,16 @@
 import { sendData } from './fetch.js';
-import { resetMap, getMarkerData } from './map.js';
 import { debounce } from './debounce.js';
+import { setFilters } from './filter.js';
+import { resetPicture } from './form-picture.js';
+import { resetMap, getMarkerData } from './map.js';
 
 const MAX_GPS_LENGTH = 5;
 const MAX_TITLE_LENGTH = 100;
 const MAX_ROOM_NUMBER = 100;
 const MIN_TITLE_LENGTH = 30;
 const ZERO_GUEST_VALUE = 0;
+const FORM_ADS_DISABLE_CLASS = 'ad-form--disabled';
+const FORM_FILTER_DISABLE_CLASS = 'map__filters--disabled';
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
 const DEBOUNCE_TIME = 500;
@@ -28,14 +32,6 @@ const validityObject = {
   message: '',
 };
 
-const filters = {
-  type: 'flat',
-  price: 'any',
-  rooms: 'any',
-  guests: 'any',
-  features: [],
-};
-
 //Селекторы форм
 const formAd = document.querySelector('.ad-form');
 const formMapFilters = document.querySelector('.map__filters');
@@ -52,13 +48,6 @@ const adTimeIn = formAd.querySelector('#timein');
 const adTimeOut = formAd.querySelector('#timeout');
 const adReset = formAd.querySelector('.ad-form__reset');
 
-//Селекторы формы фильтрации объявлений
-const filterHouseType = formMapFilters.querySelector('#housing-type');
-const filterHousePrice = formMapFilters.querySelector('#housing-price');
-const filterRoomNumber = formMapFilters.querySelector('#housing-rooms');
-const filterGuestNumber = formMapFilters.querySelector('#housing-guests');
-const filterHouseFeatures = formMapFilters.querySelector('#housing-features');
-
 //Селекторы шаблонов сообщений
 const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
@@ -66,59 +55,41 @@ const successMessage = document.body.appendChild(successMessageTemplate.cloneNod
 const errorMessage = document.body.appendChild(errorMessageTemplate.cloneNode(true));
 const errorMessageButton = errorMessage.querySelector('.error__button');
 
-//-------------------------------------------------------------------------------------------
 //Функция активации/деактивации форм
-const setFormState = (isDisable = true, formSelector) => {
-  const formList = [[formAd, 'ad-form--disabled'], [formMapFilters, 'map__filters--disabled']];
-  let selector = formSelector;
-  let index = formList.length - 1;
-
-  do {
-    if (!selector) {
-      selector = formList[index][0];
-    } else {
-      index = 0;
+const setFormState = (isDisable = true, element, elementClass) => {
+  if (isDisable) {
+    if (!element.classList.contains(elementClass)) {
+      element.classList.add(elementClass);
     }
-    if (isDisable) {
-      if (!selector.classList.contains(formList[index][1])) {
-        selector.classList.add(formList[index][1]);
-      }
-    } else {
-      selector.classList.remove(formList[index][1]);
-    }
-    [...selector.children].forEach((child) => child.disabled = isDisable);
-    selector = '';
-  } while (index--);
+  } else {
+    element.classList.remove(elementClass);
+  }
+  [...element.children].forEach((child) => child.disabled = isDisable);
 };
 
-//Обновление параметров фильтров объявлений-------------
-const setFilters = () => {
-  filters.type = filterHouseType.options[filterHouseType.selectedIndex].value;
-  filters.price = filterHousePrice.options[filterHousePrice.selectedIndex].value;
-  filters.rooms = filterRoomNumber.options[filterRoomNumber.selectedIndex].value;
-  filters.guests = filterGuestNumber.options[filterGuestNumber.selectedIndex].value;
-  filters.features = [];
-  filterHouseFeatures.querySelectorAll('.map__checkbox').forEach((child) => {
-    if (child.checked) {
-      filters.features.push(child.value);
-    }
-  });
+const setFormAdState = (isDisable) => {
+  setFormState(isDisable, formAd, FORM_ADS_DISABLE_CLASS);
 };
 
-// Обработчик события изменения фильтров объявления------
-const debounceFilterChange = debounce(() => {
-  setFormState(FORM_DISABLE, formMapFilters);
+const setFormFilterState = (isDisable)=>{
+  setFormState(isDisable, formMapFilters, FORM_FILTER_DISABLE_CLASS);
+};
+
+const setFormStateAll = (isDisable)=>{
+  setFormAdState(isDisable);
+  setFormFilterState(isDisable);
+};
+
+// Обработчик события изменения фильтров объявления
+const onFilterChange = debounce(() => {
+  setFormFilterState(FORM_DISABLE);
   setFilters();
-  getMarkerData(filters, () => setFormState(FORM_ENABLE, formMapFilters));
+  getMarkerData(() => setFormFilterState(FORM_ENABLE));
 }, DEBOUNCE_TIME);
-
-const onFilterChange = () => {
-  debounceFilterChange();
-};
 
 formMapFilters.addEventListener('change', onFilterChange);
 
-//Обработка валидации элемента --------------------------
+//Обработка валидации элемента
 const handleValidity = (element, validity) => {
   if (validity.message) {
     element.setCustomValidity(validity.message);
@@ -135,7 +106,7 @@ const onMarkerMoved = (evt) => {
   adHouseAddress.value = `${parseFloat(lat).toFixed(MAX_GPS_LENGTH)}, ${parseFloat(lng).toFixed(MAX_GPS_LENGTH)}`;
 };
 
-//Событие изменения заголовка объявления ----------------
+//Событие изменения заголовка объявления
 const onHouseTitleInput = (evt) => {
   const element = evt.target;
   const textLength = element.value.length;
@@ -153,7 +124,7 @@ const onHouseTitleInput = (evt) => {
 
 adHouseTitle.addEventListener('input', onHouseTitleInput);
 
-//Событие изменения цены жилья -------------------------
+//Событие изменения цены жилья
 const onHousePriceInput = (evt) => {
   const element = evt.target;
   const regexp = /^[0]\d+/;
@@ -171,7 +142,7 @@ const onHousePriceInput = (evt) => {
 
 adHousePrice.addEventListener('input', onHousePriceInput);
 
-//Событие изменения типа жилья -------------------------
+//Событие изменения типа жилья
 const onHouseTypeChange = (evt) => {
   const element = evt.target;
   const selectedType = element.options[element.selectedIndex].value;
@@ -183,7 +154,7 @@ const onHouseTypeChange = (evt) => {
 
 adHouseType.addEventListener('change', onHouseTypeChange);
 
-//Событие изменения количества гостей --------------------
+//Событие изменения количества гостей
 const onRoomNumberChange = () => {
   const capacityList = [...adRoomCapacity.children];
   const currentCapacity = adRoomCapacity.options[adRoomCapacity.selectedIndex];
@@ -206,7 +177,7 @@ const onRoomNumberChange = () => {
 
 adRoomNumber.addEventListener('change', onRoomNumberChange);
 
-//Событие изменения времени заезда/выезда --------------------
+//Событие изменения времени заезда/выезда
 const onTimeChange = (evt) => {
   if (evt.target === adTimeIn) {
     adTimeOut.selectedIndex = evt.target.selectedIndex;
@@ -217,23 +188,24 @@ const onTimeChange = (evt) => {
 
 adTimeField.addEventListener('change', onTimeChange);
 
-//Сброс форм и карты к значениям по умолчанию-----------------
+//Сброс форм и карты к значениям по умолчанию
 const onFormReset = () => {
   formAd.reset();
   formMapFilters.reset();
+  onFilterChange();
+  resetMap();
+  resetPicture();
+  adHouseType.dispatchEvent(new Event('change'));
+  adHouseTitle.dispatchEvent(new Event('input'));
   window.scroll({
     top: 0,
     left: 0,
     behavior: 'smooth',
   });
-  resetMap();
-  onFilterChange();
-  adHouseType.dispatchEvent(new Event('change'));
-  adHouseTitle.dispatchEvent(new Event('input'));
 };
 adReset.addEventListener('click', onFormReset);
 
-//Обработка сообщения об успешном создании объявления, сброс формы adForm------
+//Закрытие сообщения об успешном создании объявления, сброс формы adForm
 const onSuccessMessageClose = (evt) => {
   if ((evt.type !== 'keydown') || (evt.type === 'keydown' && evt.key === KeyEnum.ESC)) {
     successMessage.hidden = true;
@@ -243,6 +215,7 @@ const onSuccessMessageClose = (evt) => {
   }
 };
 
+//Вывод сообщения об успешной отправки данных
 const showSuccessMessage = () => {
   successMessage.hidden = false;
   successMessage.addEventListener('click', onSuccessMessageClose);
@@ -254,18 +227,19 @@ const showSuccessMessage = () => {
   }, MESSAGE_CLOSE_TIME);
 };
 
-//Обработка сообщения об ошибке создания объявления-----------------------
+//Закрытие сообщения об ошибке создания объявления
 const onErrorMessageClose = () => {
   errorMessage.hidden = true;
   errorMessageButton.removeEventListener('click', onErrorMessageClose);
 };
 
+//Вывод сообщения об ошибке создания объявления
 const showErrorMessage = () => {
   errorMessage.hidden = false;
   errorMessageButton.addEventListener('click', onErrorMessageClose);
 };
 
-//Событие отправки формы--------------------------------------------------
+//Событие отправки формы
 const onFormSubmit = (evt) => {
   evt.preventDefault();
   sendData(
@@ -275,4 +249,4 @@ const onFormSubmit = (evt) => {
 };
 formAd.addEventListener('submit', onFormSubmit);
 
-export { setFormState, onMarkerMoved, onRoomNumberChange };
+export { setFormStateAll, onMarkerMoved, onRoomNumberChange };

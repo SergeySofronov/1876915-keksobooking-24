@@ -1,4 +1,4 @@
-import { setFormState, onRoomNumberChange } from './utils/form.js';
+import { setFormStateAll, onRoomNumberChange } from './utils/form.js';
 import { createMap } from './utils/map.js';
 
 const FORM_DISABLE = true;
@@ -6,10 +6,10 @@ const FORM_ENABLE = false;
 
 
 // Деактивация формы
-setFormState(FORM_DISABLE);
+setFormStateAll(FORM_DISABLE);
 
 // Создание карты
 createMap(() => {
-  setFormState(FORM_ENABLE);
+  setFormStateAll(FORM_ENABLE);
   onRoomNumberChange();
 });

@@ -104,8 +104,6 @@ fieldset {
   display: none;
 }
 
-
-
 /**
  * Фильтры объявления
  */
@@ -312,16 +310,23 @@ fieldset {
       -ms-flex-align: center;
           align-items: center;
 
-  margin-right: 10px;
-  padding: 0 15px;
+  justify-content: center;
 
-  width: 70px;
+  margin-right: 10px;
+
+  min-width: 70px;
   height: 70px;
 
   text-align: center;
 
   border-radius: 5px;
   background-color: #dadada;
+}
+
+.ad-form-header__img{
+  width: 70px;
+  height: 70px;
+  border-radius: 5px;
 }
 
 .ad-form__field {
@@ -589,6 +594,9 @@ fieldset {
 }
 
 .ad-form__photo {
+  display: flex;
+  flex-direction: row;
+
   margin-right: 10px;
   margin-bottom: 10px;
 
@@ -597,6 +605,13 @@ fieldset {
 
   background-color: #e4e4de;
   border-radius: 5px;
+}
+
+.ad-form__photo img{
+  width: 70px;
+  height: 70px;
+  border-radius: 5px;
+  margin-right: 15px;
 }
 
 .ad-form__element--submit {
