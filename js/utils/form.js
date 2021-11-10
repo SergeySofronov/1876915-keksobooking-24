@@ -71,11 +71,11 @@ const setFormAdState = (isDisable) => {
   setFormState(isDisable, formAd, FORM_ADS_DISABLE_CLASS);
 };
 
-const setFormFilterState = (isDisable)=>{
+const setFormFilterState = (isDisable) => {
   setFormState(isDisable, formMapFilters, FORM_FILTER_DISABLE_CLASS);
 };
 
-const setFormStateAll = (isDisable)=>{
+const setFormStateAll = (isDisable) => {
   setFormAdState(isDisable);
   setFormFilterState(isDisable);
 };
@@ -206,20 +206,34 @@ const onFormReset = () => {
 adReset.addEventListener('click', onFormReset);
 
 //Закрытие сообщения об успешном создании объявления, сброс формы adForm
-const onSuccessMessageClose = (evt) => {
-  if ((evt.type !== 'keydown') || (evt.type === 'keydown' && evt.key === KeyEnum.ESC)) {
+const closeSuccessMessage = () => {
+  if (!successMessage.hidden) {
     successMessage.hidden = true;
-    successMessage.removeEventListener('click', onSuccessMessageClose);
-    successMessage.removeEventListener('keydown', onSuccessMessageClose);
     onFormReset();
+  }
+};
+
+const onSuccessMessageClick = () => {
+  successMessage.removeEventListener('click', onSuccessMessageClick);
+  const evt = new Event('keydown');
+  evt.key = KeyEnum.ESC;
+  successMessage.dispatchEvent(evt);
+  closeSuccessMessage();
+};
+
+const onSuccessMessageKeyDown = (evt) => {
+  if (evt.key === KeyEnum.ESC) {
+    successMessage.removeEventListener('keydown', onSuccessMessageKeyDown);
+    successMessage.dispatchEvent(new Event('click'));
+    closeSuccessMessage();
   }
 };
 
 //Вывод сообщения об успешной отправки данных
 const showSuccessMessage = () => {
   successMessage.hidden = false;
-  successMessage.addEventListener('click', onSuccessMessageClose);
-  successMessage.addEventListener('keydown', onSuccessMessageClose);
+  successMessage.addEventListener('click', onSuccessMessageClick);
+  successMessage.addEventListener('keydown', onSuccessMessageKeyDown);
   successMessage.tabIndex = '-1';
   successMessage.focus();
   setTimeout(() => {
