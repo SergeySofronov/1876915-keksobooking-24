@@ -4,17 +4,17 @@ import { setFilters } from './filter.js';
 import { resetPicture } from './form-picture.js';
 import { resetMap, getMarkerData } from './map.js';
 
-const MAX_GPS_LENGTH = 5;
-const MAX_TITLE_LENGTH = 100;
-const MAX_ROOM_NUMBER = 100;
-const MIN_TITLE_LENGTH = 30;
-const ZERO_GUEST_VALUE = 0;
+const DEBOUNCE_TIME = 500;
 const FORM_ADS_DISABLE_CLASS = 'ad-form--disabled';
 const FORM_FILTER_DISABLE_CLASS = 'map__filters--disabled';
 const FORM_DISABLE = true;
 const FORM_ENABLE = false;
-const DEBOUNCE_TIME = 500;
+const MAX_GPS_LENGTH = 5;
+const MAX_ROOM_NUMBER = 100;
+const MAX_TITLE_LENGTH = 100;
+const MIN_TITLE_LENGTH = 30;
 const MESSAGE_CLOSE_TIME = 3000;
+const ZERO_GUEST_VALUE = 0;
 
 const KeyEnum = {
   ESC: 'Escape',

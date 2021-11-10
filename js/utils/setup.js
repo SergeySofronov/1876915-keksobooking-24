@@ -9,7 +9,7 @@ const houseTypesDictionary = {
 };
 
 //Вспомогательная функция для скрытия пустых полей в балуне маркера
-const handleClonedElement = (element, elementProperty, propertyValue) => {
+const handleClonedNode = (element, elementProperty, propertyValue) => {
   if (propertyValue) {
     if (element.classList.contains('hidden')) {
       element.classList.remove('hidden');
@@ -35,42 +35,42 @@ const getPopupNodes = (userAdsArray) => {
   userAdsArray.forEach((userAd) => {
 
     const cardClone = cardTemplate.cloneNode(true);
-    const popupAvatarElement = cardClone.querySelector('.popup__avatar');
-    const popupTitleElement = cardClone.querySelector('.popup__title');
-    const popupAddressElement = cardClone.querySelector('.popup__text--address');
-    const popupPriceElement = cardClone.querySelector('.popup__text--price');
-    const popupTypeElement = cardClone.querySelector('.popup__type');
-    const popupCapacityElement = cardClone.querySelector('.popup__text--capacity');
-    const popupTimeElement = cardClone.querySelector('.popup__text--time');
-    const popupDescriptionElement = cardClone.querySelector('.popup__description ');
+    const popupUserAvatar = cardClone.querySelector('.popup__avatar');
+    const popupHouseTitle = cardClone.querySelector('.popup__title');
+    const popupHouseAddress = cardClone.querySelector('.popup__text--address');
+    const popupHousePrice = cardClone.querySelector('.popup__text--price');
+    const popupHouseType = cardClone.querySelector('.popup__type');
+    const popupHouseCapacity = cardClone.querySelector('.popup__text--capacity');
+    const popupCheckInTime = cardClone.querySelector('.popup__text--time');
+    const popupHouseDescription = cardClone.querySelector('.popup__description ');
 
-    handleClonedElement(popupAvatarElement, 'src', userAd.author.avatar);
-    handleClonedElement(popupTitleElement, 'textContent', userAd.offer.title);
-    handleClonedElement(popupAddressElement, 'textContent', userAd.offer.address);
-    handleClonedElement(popupPriceElement, 'textContent', `${userAd.offer.price}₽/ночь`);
-    handleClonedElement(popupTypeElement, 'textContent', houseTypesDictionary[userAd.offer.type]);
-    handleClonedElement(popupCapacityElement, 'textContent', `${userAd.offer.rooms} комнаты для ${userAd.offer.guests} гостей`);
-    handleClonedElement(popupTimeElement, 'textContent', `Заезд после ${userAd.offer.checkin}, выезд до ${userAd.offer.checkout}`);
-    handleClonedElement(popupDescriptionElement, 'textContent', userAd.offer.description);
+    handleClonedNode(popupUserAvatar, 'src', userAd.author.avatar);
+    handleClonedNode(popupHouseTitle, 'textContent', userAd.offer.title);
+    handleClonedNode(popupHouseAddress, 'textContent', userAd.offer.address);
+    handleClonedNode(popupHousePrice, 'textContent', `${userAd.offer.price}₽/ночь`);
+    handleClonedNode(popupHouseType, 'textContent', houseTypesDictionary[userAd.offer.type]);
+    handleClonedNode(popupHouseCapacity, 'textContent', `${userAd.offer.rooms} комнаты для ${userAd.offer.guests} гостей`);
+    handleClonedNode(popupCheckInTime, 'textContent', `Заезд после ${userAd.offer.checkin}, выезд до ${userAd.offer.checkout}`);
+    handleClonedNode(popupHouseDescription, 'textContent', userAd.offer.description);
 
-    const popupFeatureElement = cardClone.querySelectorAll('.popup__feature');
-    popupFeatureElement.forEach((nodeItem) => {
+    const popupHouseFeature = cardClone.querySelectorAll('.popup__feature');
+    popupHouseFeature.forEach((item) => {
       const isFeatureInNode = (userAd.offer.features || []).some(
-        (featureName) => nodeItem.classList.contains(`popup__feature--${featureName}`));
+        (featureName) => item.classList.contains(`popup__feature--${featureName}`));
       if (!isFeatureInNode) {
-        nodeItem.remove();
+        item.remove();
       }
     });
 
     const popupPhotoList = cardClone.querySelector('.popup__photos');
-    const photoDefaultElement = cardClone.querySelector('.popup__photo');
+    const defaultPhoto = cardClone.querySelector('.popup__photo');
     popupPhotoList.innerHTML = '';
     if (userAd.offer.photos) {
       userAd.offer.photos.forEach((value, index) => {
-        const photoNewElement = photoDefaultElement.cloneNode(false);
-        photoNewElement.src = value;
-        photoNewElement.alt += ` №${index + 1}`;
-        popupPhotoList.append(photoNewElement);
+        const newPhoto = defaultPhoto.cloneNode(false);
+        newPhoto.src = value;
+        newPhoto.alt += ` №${index + 1}`;
+        popupPhotoList.append(newPhoto);
       });
     }
 
