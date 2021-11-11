@@ -206,27 +206,26 @@ const onFormReset = () => {
 adReset.addEventListener('click', onFormReset);
 
 //Закрытие сообщения об успешном создании объявления, сброс формы adForm
-const onSuccessMessageClick = () => {
-  closeSuccessMessage();
+const closeSuccessMessage = () => {
+  successMessage.hidden = true;
+  onFormReset();
 };
 
 const onSuccessMessageKeyDown = (evt) => {
   if (evt.key === KeyEnum.ESC) {
-    closeSuccessMessage();
+    successMessage.dispatchEvent(new Event('click'));
   }
 };
 
-function closeSuccessMessage() {
-  successMessage.hidden = true;
-  successMessage.removeEventListener('click', onSuccessMessageClick);
+const onSuccessMessageClick = () => {
   successMessage.removeEventListener('keydown', onSuccessMessageKeyDown);
-  onFormReset();
-}
+  closeSuccessMessage();
+};
 
 //Вывод сообщения об успешной отправки данных
 const showSuccessMessage = () => {
   successMessage.hidden = false;
-  successMessage.addEventListener('click', onSuccessMessageClick);
+  successMessage.addEventListener('click', onSuccessMessageClick, { once: true });
   successMessage.addEventListener('keydown', onSuccessMessageKeyDown);
   successMessage.tabIndex = '-1';
   successMessage.focus();
