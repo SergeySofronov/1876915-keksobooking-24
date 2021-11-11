@@ -1,5 +1,7 @@
 import { checkAdByFilters, getFormFilters } from './filter.js';
 
+const ADS_MAX_NUMBER = 10;  // Максимальное количество отображаемых на карте объявлений
+
 const houseTypesDictionary = {
   flat: 'Квартира',
   palace: 'Дворец',
@@ -32,7 +34,7 @@ const getPopupNodes = (userAdsArray) => {
     userAdsArray = userAdsArray.filter((userAd) => checkAdByFilters(userAd, formFilters));
   }
 
-  userAdsArray.forEach((userAd) => {
+  for (const userAd of userAdsArray) {
 
     const cardClone = cardTemplate.cloneNode(true);
     const popupUserAvatar = cardClone.querySelector('.popup__avatar');
@@ -75,7 +77,10 @@ const getPopupNodes = (userAdsArray) => {
     }
 
     cardArray.push({ userAdNode: cardClone, location: userAd.location });
-  });
+    if (cardArray.length >= ADS_MAX_NUMBER) {
+      break;
+    }
+  }
 
   return cardArray;
 };

@@ -1,8 +1,8 @@
 const ACADEMY_BASE_URL = 'https://24.javascript.pages.academy/keksobooking';
 
 const EndPoints = {
-  SEND_ADS:`${ACADEMY_BASE_URL}`,
-  GET_ADS:`${ACADEMY_BASE_URL}/data`,
+  SEND_ADS: `${ACADEMY_BASE_URL}`,
+  GET_ADS: `${ACADEMY_BASE_URL}/data`,
 };
 
 //Загрузка данных от сервера
@@ -25,7 +25,7 @@ const getData = (onSuccess, onFail, onFinally) => fetch(
   .catch((err) => {
     onFail(err);
   })
-  .finally(()=>onFinally());
+  .finally(onFinally);
 
 //Отправка данных на сервер
 const sendData = (onSuccess, onFail, formData) => fetch(
@@ -43,8 +43,6 @@ const sendData = (onSuccess, onFail, formData) => fetch(
       onFail();   // Ошибка при отправке
     }
   })
-  .catch(() => {
-    onFail();   // Ошибка при отправке
-  });
+  .catch(onFail);   // Ошибка при отправке
 
 export { getData, sendData };

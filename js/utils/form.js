@@ -222,7 +222,7 @@ const onSuccessMessageClick = () => {
   closeSuccessMessage();
 };
 
-//Вывод сообщения об успешной отправки данных
+//Вывод сообщения об успешной отправке данных
 const showSuccessMessage = () => {
   successMessage.hidden = false;
   successMessage.addEventListener('click', onSuccessMessageClick, { once: true });

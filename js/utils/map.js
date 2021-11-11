@@ -15,7 +15,6 @@ const MAP_PAN_SPEED = 3;
 const MARKER_INIT_LAT = 35.68897;
 const MARKER_INIT_LNG = 139.7535;
 const MARKER_SPECIAL = true;
-const MARKER_MAX_NUMBER = 10;
 const DATA_ERROR_MESSAGE = 'Ошибка при загрузке объявлений';
 
 let map;                      //Ссылка на карту
@@ -65,7 +64,7 @@ const createMarker = (latValue, lngValue, isSpecial = false) => {
 // Формирование массива маркеров и привязка их к карте
 const createMarkerHeap = (markerPopupData) => {
   markerGroup.clearLayers();
-  getPopupNodes(markerPopupData).slice(0, MARKER_MAX_NUMBER).forEach((element) => {
+  getPopupNodes(markerPopupData).forEach((element) => {
     const { lat, lng } = element.location;
     createMarker(lat, lng).bindPopup(element.userAdNode).addTo(markerGroup);
 
