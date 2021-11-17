@@ -2,7 +2,7 @@
 
 * Студент: [Сергей Софронов](https://up.htmlacademy.ru/javascript/24/user/1876915).
 * Наставник: [Анатолий Долгов](https://htmlacademy.ru/profile/dolgov_anatoly)
-* Проект: [ссылка](https://sergeysofronov.github.io/1876915-keksobooking-24/)
+* Проект: [Кексобукинг](https://sergeysofronov.github.io/1876915-keksobooking-24/)
 ---
 
 _Не удаляйте и не изменяйте самовольно файлы и папки:_
