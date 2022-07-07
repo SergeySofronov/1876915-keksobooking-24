@@ -1,6 +1,6 @@
 # Личный проект «Кексобукинг»
 
-* Студент: [Сергей Софронов](https://up.htmlacademy.ru/javascript/24/user/1876915).
+* Студент: [Сергей Софронов](https://htmlacademy.ru/profile/id1876915)
 * Наставник: [Анатолий Долгов](https://htmlacademy.ru/profile/dolgov_anatoly)
 * Проект: [Кексобукинг](https://sergeysofronov.github.io/1876915-keksobooking-24/)
 ---
